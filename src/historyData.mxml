@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="800" height="400" minWidth="800" minHeight="400">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+
+			private var data:Object;
+			protected function txtRoleInput_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER){
+					var preCursor:int = parseInt(data[0]);
+					var item:Object = {name:event.target.text,id:preCursor};
+					lstNames.dataProvider.addItem(item);
+//					data[1].push(item);
+					
+					var cursor:int = preCursor + 1;
+					data[0] = cursor;
+				}
+					
+			}
+			
+			protected function browse_clickHandler(event:MouseEvent):void
+			{
+				var file:File = new File(File.applicationDirectory.nativePath);
+				file.browseForDirectory('选择仓库路径');
+				file.addEventListener(Event.SELECT, onDirectorySelect);
+			}
+
+			private function onDirectorySelect(event:Event):void
+			{
+				var file:File = File(event.target);
+				txtDirectory.text = file.nativePath;
+			}
+			
+			protected function btnDirectoryOk_clickHandler(event:MouseEvent):void
+			{
+				var dataFile:File = new File(txtDirectory.text+'/data.json');
+				var fs:FileStream = new FileStream;
+				var str:String;
+				
+				try
+				{
+					fs.open(dataFile, FileMode.READ);
+					str = fs.readUTFBytes(fs.bytesAvailable);
+					data = JSON.parse(str);
+				} 
+				catch(error:Error) 
+				{
+					data = [0, [], 0, []];
+					str = JSON.stringify(data);
+					fs.open(dataFile, FileMode.WRITE);
+					fs.position = 0;
+					fs.writeUTFBytes(str);
+				}
+				finally{
+					fs.close();
+				}
+				
+				lstNames.dataProvider = new ArrayList(data[1]);
+				lstEvents.dataProvider = new ArrayList(data[3]);
+			}
+			
+			protected function btnSave_clickHandler(event:MouseEvent):void
+			{
+				var dataFile:File = new File(txtDirectory.text+'/data.json');
+				var fs:FileStream = new FileStream;
+				var str:String;
+				
+				try
+				{
+					str = JSON.stringify(data);
+					fs.open(dataFile, FileMode.WRITE);
+					fs.position = 0;
+					fs.writeUTFBytes(str);
+				} 
+				catch(error:Error) 
+				{
+					
+				}
+				finally{
+					fs.close();
+				}
+			}
+			
+			protected function btnOneEvent_clickHandler(event:MouseEvent):void
+			{
+				var preCursor:int = parseInt(data[2]);
+				var item:Object = {id:preCursor,date:txtDate.text,name:txtEventName.text,names:txtNames.text,url:txtUrl.text};
+				lstEvents.dataProvider.addItem(item);
+				//					data[1].push(item);
+				
+				var cursor:int = preCursor + 1;
+				data[2] = cursor;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:List id="lstNames" x="641" y="54" height="166" labelField="name"></s:List>
+	<s:TextInput id="txtRoleInput" x="641" y="237" keyDown="txtRoleInput_keyDownHandler(event)"/>
+	<s:TextInput id="txtDate" x="207" y="80"/>
+	<s:TextInput id="txtEventName" x="207" y="120" width="382"/>
+	<s:TextInput id="txtNames" x="207" y="160" width="382"/>
+	<s:TextInput id="txtUrl" x="207" y="240" width="382"/>
+	<s:Label x="147" y="246" text="来源"/>
+	<s:Label x="147" y="166" text="相关人物"/>
+	<s:Label x="147" y="126" text="事件名"/>
+	<s:Label x="147" y="86" text="年份"/>
+	<s:ComboBox x="207" y="190"/>
+	<s:Button id="btnOneEvent" x="207" y="299" label="保存" click="btnOneEvent_clickHandler(event)"/>
+	<s:List id="lstEvents" left="10" top="76" bottom="10" width="116" labelField="name"></s:List>
+	<s:TextInput id="txtDirectory" x="10" y="10" width="301"/>
+	<s:Button id="browse" x="319" y="11" label="..." click="browse_clickHandler(event)"/>
+	<s:Button id="btnDirectoryOk" x="397" y="11" label="确定"
+			  click="btnDirectoryOk_clickHandler(event)"/>
+	<s:Button id="btnSave" x="477" y="11" label="保存所有" click="btnSave_clickHandler(event)"/>
+</s:WindowedApplication>
