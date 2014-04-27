@@ -7,6 +7,8 @@
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayList;
+			
+			import spark.events.IndexChangeEvent;
 
 			private var data:Object;
 			protected function txtRoleInput_keyDownHandler(event:KeyboardEvent):void
@@ -97,6 +99,15 @@
 				data[2] = cursor;
 			}
 			
+			protected function lstEvents_changeHandler(event:IndexChangeEvent):void
+			{
+				var item:Object = lstEvents.dataProvider.getItemAt(event.newIndex);
+				txtDate.text = item.date;
+				txtEventName.text = item.name;
+				txtNames.text = item.names;
+				txtUrl.text = item.url;
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -115,7 +126,8 @@
 	<s:Label x="147" y="86" text="年份"/>
 	<s:ComboBox x="207" y="190"/>
 	<s:Button id="btnOneEvent" x="207" y="299" label="保存" click="btnOneEvent_clickHandler(event)"/>
-	<s:List id="lstEvents" left="10" top="76" bottom="10" width="116" labelField="name"></s:List>
+	<s:List id="lstEvents" left="10" top="76" bottom="10" width="116"
+			change="lstEvents_changeHandler(event)" labelField="name"></s:List>
 	<s:TextInput id="txtDirectory" x="10" y="10" width="301"/>
 	<s:Button id="browse" x="319" y="11" label="..." click="browse_clickHandler(event)"/>
 	<s:Button id="btnDirectoryOk" x="397" y="11" label="确定"
